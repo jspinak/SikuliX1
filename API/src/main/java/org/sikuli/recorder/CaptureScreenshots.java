@@ -24,12 +24,16 @@ public class CaptureScreenshots {
 
     private final ScheduledExecutorService SCHEDULER = Executors.newSingleThreadScheduledExecutor();
 
-    public synchronized void capture(int delayInMilliseconds) {
+    public synchronized void startCapturing(String screenshotDirectory, int delayInMilliseconds) {
         StandardSaveToFile standardSaveToFile = new StandardSaveToFile();
-        File directory = standardSaveToFile.createDirectory("sikulix-recorder");
+        File directory = standardSaveToFile.createDirectory(screenshotDirectory);
         CaptureScreenshot captureScreenshot = new CaptureScreenshot(standardSaveToFile);
         SCHEDULER.schedule((() -> {
             captureScreenshot.saveScreenshot(directory);
         }), delayInMilliseconds, java.util.concurrent.TimeUnit.MILLISECONDS);
+    }
+
+    public synchronized void stopCapturing() {
+        SCHEDULER.shutdown();
     }
 }
