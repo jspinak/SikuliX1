@@ -1,6 +1,8 @@
 package org.sikuli.recorder;
 
 import java.io.File;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Repeats the capture with a delay, during which other calls to this method are ignored.
@@ -20,10 +22,14 @@ import java.io.File;
  */
 public class CaptureScreenshots {
 
-    public void capture() {
+    private final ScheduledExecutorService SCHEDULER = Executors.newSingleThreadScheduledExecutor();
+
+    public synchronized void capture(int delayInMilliseconds) {
         StandardSaveToFile standardSaveToFile = new StandardSaveToFile();
         File directory = standardSaveToFile.createDirectory("sikulix-recorder");
         CaptureScreenshot captureScreenshot = new CaptureScreenshot(standardSaveToFile);
-        captureScreenshot.saveScreenshot(directory);
+        SCHEDULER.schedule((() -> {
+            captureScreenshot.saveScreenshot(directory);
+        }), delayInMilliseconds, java.util.concurrent.TimeUnit.MILLISECONDS);
     }
 }
